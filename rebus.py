@@ -1,4 +1,5 @@
 import sys
+import time
 sys.setrecursionlimit(40000)
 
 op1 = op2 = ans = act = None
@@ -33,10 +34,15 @@ def search(simbols, keys, indx, len_):
 
 
 def main():
+    #inp = input().strip()
+    inp = "CROSS + ROADS = DANGER"
+    
+    ###########################
+    start = time.process_time()
+    ###########################
+    
     global op1, op2, ans, act
 
-    inp = input().strip()
-    #inp = "SEND + MORE = MONEY"
     inp = inp.replace(' ', '')
 
     for ch in inp:
@@ -55,7 +61,10 @@ def main():
     op1 = parts[0][::-1]
     op2 = parts[1][::-1]
     ans = parts[-1][::-1]
-    if search(simbols, keys, 0, len(simbols)):
+
+    found = search(simbols, keys, 0, len(simbols))
+
+    if found:
         for i in op1[::-1]: print(simbols[i], end="")
         print(' ' + act + ' ', end="")
         for i in op2[::-1]: print(simbols[i], end="")
@@ -65,5 +74,6 @@ def main():
     else:
         print("no solution")
 
-
+    stop = time.process_time()
+    print(stop-start)
 main()

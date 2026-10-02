@@ -2,21 +2,20 @@ import sys
 import time
 sys.setrecursionlimit(40000)
 
-op1 = op2 = ans = act = None
+op1 = act = op2 = ans = None      
 
-def search(simbols, keys, indx, len_, leading_simbols, used_digits):
+
+####################### УМНОЖЕНИЕ, ДЕЛЕНИЕ #######################
+def search_mul_div(simbols, keys, indx, len_, leading_simbols, used_digits):
     
     if indx == len_:
         op1_val = sum([simbols[op1[i]] * (10**i) for i in range(len(op1))])
         op2_val = sum([simbols[op2[i]] * (10**i) for i in range(len(op2))])
         ans_val = sum([simbols[ans[i]] * (10**i) for i in range(len(ans))])
 
-        if act == "+" and op1_val + op2_val == ans_val: return True
-        if act == "-" and op1_val - op2_val == ans_val: return True
         if act == "*" and op1_val * op2_val == ans_val: return True
         if act == "/" and op2_val != 0 and op1_val % op2_val == 0 and op1_val // op2_val == ans_val: return True
         return False
-
 
     current_simbol = keys[indx]
 
@@ -28,23 +27,53 @@ def search(simbols, keys, indx, len_, leading_simbols, used_digits):
             simbols[current_simbol] = j
             used_digits[j] = True
 
-            if search(simbols, keys, indx + 1, len_, leading_simbols, used_digits):
+            if search_mul_div(simbols, keys, indx + 1, len_, leading_simbols, used_digits):
                 return True
 
             simbols[current_simbol] = -1
             used_digits[j] = False
 
+    return False
+####################### УМНОЖЕНИЕ, ДЕЛЕНИЕ #######################
+
+
+####################### СЛОЖЕНИЕ, ВЫЧИТАНИЕ #######################
+def search_add_sub(simbols, keys, indx, len_, leading_simbols, used_digits):
+    
+    if indx == len_:
+        op1_val = sum([simbols[op1[i]] * (10**i) for i in range(len(op1))])
+        op2_val = sum([simbols[op2[i]] * (10**i) for i in range(len(op2))])
+        ans_val = sum([simbols[ans[i]] * (10**i) for i in range(len(ans))])
+
+        if act == "+" and op1_val + op2_val == ans_val: return True
+        if act == "-" and op1_val - op2_val == ans_val: return True
+        return False
+
+    current_simbol = keys[indx]
+
+    for j in range(0, 10):
+        if j == 0 and current_simbol in leading_simbols:
+            continue
+        
+        if not(used_digits[j]):
+            simbols[current_simbol] = j
+            used_digits[j] = True
+
+            # ИСПРАВЛЕНО: Теперь вызывается search_add_sub вместо search_mul_div
+            if search_add_sub(simbols, keys, indx + 1, len_, leading_simbols, used_digits):
+                return True
+
+            simbols[current_simbol] = -1
+            used_digits[j] = False
 
     return False
+####################### СЛОЖЕНИЕ, ВЫЧИТАНИЕ #######################
 
 
-def main():
-    #inp = input().strip()
-    inp = "CROSS + ROADS = DANGER"
-    
-    ###########################
-    start = time.process_time()
-    ###########################
+#######################               #######################
+####################### РАСПРЕДЕЛЕНИЕ #######################
+#######################               #######################
+def search(inp):
     
     global op1, op2, ans, act
 
@@ -58,6 +87,7 @@ def main():
     for ch in '+-*/=':
         inp = inp.replace(ch, '_')
 
+
     parts = inp.split('_')
 
     simbols = {char: -1 for char in ''.join(parts)}
@@ -67,10 +97,14 @@ def main():
     op2 = parts[1][::-1]
     ans = parts[-1][::-1]
 
-    leading_simbols={op1[-1], op2[-1], ans[-1]}
+    leading_simbols = {op1[-1], op2[-1], ans[-1]}
 
-    found = search(simbols, keys, 0, len(simbols),leading_simbols, [False]*10)
-    ## [False]*10 - это список флагов для использованных цветов
+    found = None
+    if act == '*' or act == '/':
+        found = search_mul_div(simbols, keys, 0, len(simbols), leading_simbols, [False] * 10)
+    else:
+        found = search_add_sub(simbols, keys, 0, len(simbols), leading_simbols, [False] * 10)
+        
 
     if found:
         for i in op1[::-1]: print(simbols[i], end="")
@@ -81,7 +115,21 @@ def main():
         print()
     else:
         print("no solution")
+#######################               #######################
+####################### РАСПРЕДЕЛЕНИЕ #######################
+#######################               #######################
+
+
+def main():
+    inp = "CROSS + ROADS = DANGER"
+    
+    ###########################
+    start = time.process_time()
+    ###########################
+
+    search(inp)
 
     stop = time.process_time()
     print(stop-start)
+
 main()

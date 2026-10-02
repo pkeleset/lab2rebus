@@ -4,7 +4,7 @@ sys.setrecursionlimit(40000)
 
 op1 = op2 = ans = act = None
 
-def search(simbols, keys, indx, len_, leading_simbols):
+def search(simbols, keys, indx, len_, leading_simbols, used_digits):
     
     if indx == len_:
         op1_val = sum([simbols[op1[i]] * (10**i) for i in range(len(op1))])
@@ -21,17 +21,19 @@ def search(simbols, keys, indx, len_, leading_simbols):
     current_simbol = keys[indx]
 
     for j in range(0, 10):
-        
         if j == 0 and current_simbol in leading_simbols:
             continue
         
-        if j not in simbols.values():
+        if not(used_digits[j]):
             simbols[current_simbol] = j
+            used_digits[j] = True
 
-            if search(simbols, keys, indx + 1, len_,leading_simbols):
+            if search(simbols, keys, indx + 1, len_, leading_simbols, used_digits):
                 return True
 
             simbols[current_simbol] = -1
+            used_digits[j] = False
+
 
     return False
 
@@ -67,7 +69,8 @@ def main():
 
     leading_simbols={op1[-1], op2[-1], ans[-1]}
 
-    found = search(simbols, keys, 0, len(simbols),leading_simbols)
+    found = search(simbols, keys, 0, len(simbols),leading_simbols, [False]*10)
+    ## [False]*10 - это список флагов для использованных цветов
 
     if found:
         for i in op1[::-1]: print(simbols[i], end="")

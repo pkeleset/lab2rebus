@@ -84,6 +84,7 @@ def search(inp):
     parts = inp.split('_')
 
     simbols = {char: -1 for char in ''.join(parts)}
+    
     keys = list(simbols.keys())
 
     op1 = parts[0][::-1]
@@ -91,8 +92,6 @@ def search(inp):
     ans = parts[-1][::-1]
 
     leading_simbols = {op1[-1], op2[-1], ans[-1]} ## set
-
-
 
     found = None
 
@@ -121,6 +120,8 @@ def search(inp):
             else:
                 weights[ans[i]] = -1 * 10**i
                 
+        keys.sort(key=lambda char: char in leading_simbols, reverse=True) ## выносим в начало списка тех, кто есть в leading_simbols
+                
         found = search_add_sub(simbols, keys, 0, len(simbols), leading_simbols, [False] * 10, weights, 0)
 
 
@@ -133,6 +134,7 @@ def search(inp):
         print()
     else:
         print("no solution")
+
 
 
 #######################               #######################

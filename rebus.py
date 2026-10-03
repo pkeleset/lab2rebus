@@ -38,16 +38,10 @@ def search_mul_div(simbols, keys, indx, len_, leading_simbols, used_digits):
 
 
 ####################### СЛОЖЕНИЕ, ВЫЧИТАНИЕ #######################
-def search_add_sub(simbols, keys, indx, len_, leading_simbols, used_digits):
+def search_add_sub(simbols, keys, indx, len_, leading_simbols, used_digits, weights, score):
     
     if indx == len_:
-        op1_val = sum([simbols[op1[i]] * (10**i) for i in range(len(op1))])
-        op2_val = sum([simbols[op2[i]] * (10**i) for i in range(len(op2))])
-        ans_val = sum([simbols[ans[i]] * (10**i) for i in range(len(ans))])
-
-        if act == "+" and op1_val + op2_val == ans_val: return True
-        if act == "-" and op1_val - op2_val == ans_val: return True
-        return False
+        return score == 0
 
     current_simbol = keys[indx]
 
@@ -55,12 +49,11 @@ def search_add_sub(simbols, keys, indx, len_, leading_simbols, used_digits):
         if j == 0 and current_simbol in leading_simbols:
             continue
         
-        if not(used_digits[j]):
+        if not used_digits[j]:
             simbols[current_simbol] = j
             used_digits[j] = True
 
-            # ИСПРАВЛЕНО: Теперь вызывается search_add_sub вместо search_mul_div
-            if search_add_sub(simbols, keys, indx + 1, len_, leading_simbols, used_digits):
+            if search_add_sub(simbols, keys, indx + 1, len_, leading_simbols, used_digits, weights, score + j * weights[current_simbol]):
                 return True
 
             simbols[current_simbol] = -1
@@ -97,14 +90,39 @@ def search(inp):
     op2 = parts[1][::-1]
     ans = parts[-1][::-1]
 
-    leading_simbols = {op1[-1], op2[-1], ans[-1]}
+    leading_simbols = {op1[-1], op2[-1], ans[-1]} ## set
+
+
 
     found = None
+
     if act == '*' or act == '/':
         found = search_mul_div(simbols, keys, 0, len(simbols), leading_simbols, [False] * 10)
-    else:
-        found = search_add_sub(simbols, keys, 0, len(simbols), leading_simbols, [False] * 10)
+    else: ## act == '+' or act == '-'
+        weights={}
         
+        for i in range(0, len(op1)):
+            if op1[i] in weights:
+                weights[op1[i]]+=10**i
+            else:
+                weights[op1[i]]=10**i
+
+        for i in range(0, len(op2)):
+            if op2[i] in weights:
+                if act=='+': weights[op2[i]]+=10**i
+                else: weights[op2[i]]-=10**i
+            else:
+                if act=='+': weights[op2[i]]=10**i
+                else: weights[op2[i]] = -1 * 10**i ## act=='-'
+
+        for i in range(0, len(ans)):
+            if ans[i] in weights:
+                weights[ans[i]] -= 10**i
+            else:
+                weights[ans[i]] = -1 * 10**i
+                
+        found = search_add_sub(simbols, keys, 0, len(simbols), leading_simbols, [False] * 10, weights, 0)
+
 
     if found:
         for i in op1[::-1]: print(simbols[i], end="")
@@ -115,6 +133,8 @@ def search(inp):
         print()
     else:
         print("no solution")
+
+
 #######################               #######################
 ####################### РАСПРЕДЕЛЕНИЕ #######################
 #######################               #######################

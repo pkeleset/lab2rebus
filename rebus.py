@@ -35,6 +35,10 @@ def search_mul_div(simbols, keys, indx, len_, leading_simbols, used_digits):
         if not(used_digits & (1 << j)):
             simbols[current_simbol] = j
 
+            if simbols[op1[0]] != -1 and simbols[op2[0]] != -1 and simbols[ans[0]] != -1:
+                if (simbols[op1[0]] * simbols[op2[0]]) % 10 != simbols[ans[0]]:
+                    simbols[current_simbol] = -1
+                    continue
 
             if search_mul_div(simbols, keys, indx + 1, len_, leading_simbols, (used_digits | (1 << j))):
                 return True
@@ -47,7 +51,7 @@ def search_mul_div(simbols, keys, indx, len_, leading_simbols, used_digits):
 
 
 ####################### СЛОЖЕНИЕ, ВЫЧИТАНИЕ #######################
-def search_add_sub(simbols, keys, indx, len_, leading_simbols, used_digits, weights, score): 
+def search_add_sub(simbols, keys, indx, len_, leading_simbols, used_digits, weights, score):
     
     if indx == len_:
         return score == 0
@@ -113,7 +117,12 @@ def search(inp):
     found = None
 
     if act == '*' or act == '/':
+        tail_simbols = {op1[0], op2[0], ans[0]}
+        keys.sort(key=lambda char: char in tail_simbols, reverse=True)
+        keys.sort(key=lambda char: char in leading_simbols, reverse=True)
         found = search_mul_div(simbols, keys, 0, len(simbols), leading_simbols, 0)## used_digits - маска
+
+        
     else: ## act == '+' or act == '-'
         weights={}
         

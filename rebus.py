@@ -23,22 +23,22 @@ def search_mul_div(simbols, keys, indx, len_, leading_simbols, used_digits):
         if j == 0 and current_simbol in leading_simbols:
             continue
         
-        if not(used_digits[j]):
+        if not(used_digits & (1 << j)):
             simbols[current_simbol] = j
-            used_digits[j] = True
 
-            if search_mul_div(simbols, keys, indx + 1, len_, leading_simbols, used_digits):
+
+            if search_mul_div(simbols, keys, indx + 1, len_, leading_simbols, (used_digits | (1 << j))):
                 return True
 
             simbols[current_simbol] = -1
-            used_digits[j] = False
+
 
     return False
 ####################### УМНОЖЕНИЕ, ДЕЛЕНИЕ #######################
 
 
 ####################### СЛОЖЕНИЕ, ВЫЧИТАНИЕ #######################
-def search_add_sub(simbols, keys, indx, len_, leading_simbols, used_digits, weights, score):
+def search_add_sub(simbols, keys, indx, len_, leading_simbols, used_digits, weights, score): 
     
     if indx == len_:
         return score == 0
@@ -51,21 +51,20 @@ def search_add_sub(simbols, keys, indx, len_, leading_simbols, used_digits, weig
         if j == 0 and current_simbol in leading_simbols:
             continue
         
-        if not used_digits[j]:
+        if not (used_digits & (1 << j)):
 
             ## score + j * weights[current_simbol] - score, который будет, если назначить текущему символу в соответсвие цифру j
             if abs(score + j * weights[current_simbol]) > max_remaining_potential:
                 continue
             
             simbols[current_simbol] = j
-            used_digits[j] = True
 
 
-            if search_add_sub(simbols, keys, indx + 1, len_, leading_simbols, used_digits, weights, score + j * weights[current_simbol]):
+
+            if search_add_sub(simbols, keys, indx + 1, len_, leading_simbols, (used_digits | (1 << j)), weights, score + j * weights[current_simbol]):
                 return True
 
             simbols[current_simbol] = -1
-            used_digits[j] = False
 
     return False
 ####################### СЛОЖЕНИЕ, ВЫЧИТАНИЕ #######################
@@ -104,7 +103,7 @@ def search(inp):
     found = None
 
     if act == '*' or act == '/':
-        found = search_mul_div(simbols, keys, 0, len(simbols), leading_simbols, [False] * 10)
+        found = search_mul_div(simbols, keys, 0, len(simbols), leading_simbols, 0)## used_digits - маска
     else: ## act == '+' or act == '-'
         weights={}
         
@@ -131,7 +130,7 @@ def search(inp):
         keys.sort(key=lambda char: abs(weights.get(char, 0)), reverse=True) ## сортируем в порядке убывания модулей весов
         keys.sort(key=lambda char: char in leading_simbols, reverse=True)
                 
-        found = search_add_sub(simbols, keys, 0, len(simbols), leading_simbols, [False] * 10, weights, 0)
+        found = search_add_sub(simbols, keys, 0, len(simbols), leading_simbols, 0, weights, 0)## used_digits - маска
 
 
     if found:

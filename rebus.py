@@ -7,11 +7,20 @@ op1 = act = op2 = ans = None
 
 ####################### УМНОЖЕНИЕ, ДЕЛЕНИЕ #######################
 def search_mul_div(simbols, keys, indx, len_, leading_simbols, used_digits):
+    global op1, op2, ans, act
     
     if indx == len_:
-        op1_val = sum([simbols[op1[i]] * (10**i) for i in range(len(op1))])
-        op2_val = sum([simbols[op2[i]] * (10**i) for i in range(len(op2))])
-        ans_val = sum([simbols[ans[i]] * (10**i) for i in range(len(ans))])
+        op1_val = 0
+        for i in reversed(op1): 
+            op1_val = op1_val * 10 + simbols[i]
+            
+        op2_val = 0
+        for i in reversed(op2): 
+            op2_val = op2_val * 10 + simbols[i]
+            
+        ans_val = 0
+        for i in reversed(ans): 
+            ans_val = ans_val * 10 + simbols[i]
 
         if act == "*" and op1_val * op2_val == ans_val: return True
         if act == "/" and op2_val != 0 and op1_val % op2_val == 0 and op1_val // op2_val == ans_val: return True
@@ -89,6 +98,7 @@ def search(inp):
 
 
     parts = inp.split('_')
+    parts = [p for p in parts if p]
 
     simbols = {char: -1 for char in ''.join(parts)}
     
@@ -151,7 +161,8 @@ def search(inp):
 
 
 def main():
-    inp = "CROSS + ROADS = DANGER"
+    #inp = "CROSS + ROADS = DANGER"
+    inp = "ABCDE * F = EDCBA"
     
     ###########################
     start = time.process_time()

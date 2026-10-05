@@ -45,13 +45,21 @@ def search_add_sub(simbols, keys, indx, len_, leading_simbols, used_digits, weig
 
     current_simbol = keys[indx]
 
+    max_remaining_potential = sum(abs(weights[keys[k]]) * 9 for k in range(indx + 1, len_)) # верхняя примерная граница потенциала неназначенных букв, кроме keys[indx]
+
     for j in range(0, 10):
         if j == 0 and current_simbol in leading_simbols:
             continue
         
         if not used_digits[j]:
+
+            ## score + j * weights[current_simbol] - score, который будет, если назначить текущему символу в соответсвие цифру j
+            if abs(score + j * weights[current_simbol]) > max_remaining_potential:
+                continue
+            
             simbols[current_simbol] = j
             used_digits[j] = True
+
 
             if search_add_sub(simbols, keys, indx + 1, len_, leading_simbols, used_digits, weights, score + j * weights[current_simbol]):
                 return True
@@ -119,8 +127,9 @@ def search(inp):
                 weights[ans[i]] -= 10**i
             else:
                 weights[ans[i]] = -1 * 10**i
-                
-        keys.sort(key=lambda char: char in leading_simbols, reverse=True) ## выносим в начало списка тех, кто есть в leading_simbols
+
+        keys.sort(key=lambda char: abs(weights.get(char, 0)), reverse=True) ## сортируем в порядке убывания модулей весов
+        keys.sort(key=lambda char: char in leading_simbols, reverse=True)
                 
         found = search_add_sub(simbols, keys, 0, len(simbols), leading_simbols, [False] * 10, weights, 0)
 

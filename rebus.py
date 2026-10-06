@@ -1,8 +1,7 @@
 import sys
 import time
 sys.setrecursionlimit(40000)
-
-op1 = act = op2 = ans = None      
+      
 
 
 ####################### УМНОЖЕНИЕ, ДЕЛЕНИЕ #######################
@@ -171,7 +170,7 @@ def search(inp):
 
 def main():
     #inp = "CROSS + ROADS = DANGER"
-    inp = "ABCDE * F = EDCBA"
+    inp = "NWAQ * NVI = VSBQNSV"
     
     ###########################
     start = time.process_time()

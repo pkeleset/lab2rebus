@@ -181,4 +181,6 @@ def main():
     stop = time.process_time()
     print(stop-start)
 
+    x=str(input())
+
 main()
